@@ -1,18 +1,18 @@
-import {Injectable, UnauthorizedException} from '@nestjs/common';
-import {InjectRepository} from "@nestjs/typeorm";
-import {JwtService} from '@nestjs/jwt';
+import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { InjectRepository } from "@nestjs/typeorm";
+import { JwtService } from '@nestjs/jwt';
 
-import {Repository} from 'typeorm';
+import { Repository } from 'typeorm';
 
 import * as bcrypt from 'bcrypt';
 
-import {LoginDto} from "./dto/login.dto";
-import {RegisterDto} from "./dto/register.dto";
+import { LoginDto } from "./dto/login.dto";
+import { RegisterDto } from "./dto/register.dto";
 
-import {JwtPayload} from './interfaces';
-import {handleExceptions} from 'src/common/utils';
+import { JwtPayload } from './interfaces';
+import { handleExceptions } from 'src/common/utils';
 
-import {User} from "./entities/user.entity";
+import { User } from "./entities/user.entity";
 
 @Injectable()
 export class AuthService {
@@ -25,11 +25,11 @@ export class AuthService {
     }
 
     async login(loginDto: LoginDto) {
-        const {password, email} = loginDto;
+        const { password, email } = loginDto;
 
         const user = await this.userRepository.findOne({
-            where: {email},
-            select: {email: true, password: true, id: true, name: true},
+            where: { email },
+            select: { email: true, password: true, id: true, name: true },
         });
 
         if (!user) throw new UnauthorizedException(`Credentials are not valid (user)`);
@@ -41,14 +41,14 @@ export class AuthService {
 
         return {
             ...user,
-            token: this.generateJwt({id: user.id}),
+            token: this.generateJwt({ id: user.id }),
         };
     }
 
     async register(registerDto: RegisterDto) {
         try {
 
-            const {password, ...userData} = registerDto;
+            const { password, ...userData } = registerDto;
 
             const user = this.userRepository.create({
                 ...userData,
@@ -60,7 +60,7 @@ export class AuthService {
 
             return {
                 ...user,
-                token: this.generateJwt({id: user.id}),
+                token: this.generateJwt({ id: user.id }),
             };
 
         } catch (error) {
@@ -74,7 +74,7 @@ export class AuthService {
     }
 
     checkStatus() {
-        return `This action returns all auth`;
+        return {};
     }
 
 }
