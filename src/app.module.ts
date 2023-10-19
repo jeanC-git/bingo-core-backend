@@ -8,7 +8,6 @@ import * as process from "process";
 
 @Module({
     imports: [
-
         ConfigModule.forRoot(),
 
         TypeOrmModule.forRoot({
@@ -18,7 +17,7 @@ import * as process from "process";
             database: process.env.DB_NAME,
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
-            ssl: true,
+            ssl: process.env.APP_ENVIRONMENT !== 'dev',
             autoLoadEntities: true,
             synchronize: true,
             // logging: true

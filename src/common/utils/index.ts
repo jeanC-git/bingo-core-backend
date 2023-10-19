@@ -1,1 +1,2 @@
-export { handleExceptions } from './db-handler.utils';
+export { logTime, createDateFromFormat } from './commons.util';
+export { handleExceptions } from './db-handler.util';

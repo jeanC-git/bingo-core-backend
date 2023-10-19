@@ -1,26 +1,71 @@
-import { Injectable } from '@nestjs/common';
-import { CreateGameRoomDto } from './dto/create-game_room.dto';
-import { UpdateGameRoomDto } from './dto/update-game_room.dto';
+import { Injectable, NotFoundException } from '@nestjs/common';
+import { Repository } from 'typeorm';
+
+import { GenerateBingoCardsDto } from './dto';
+import { GameRoom, PickedBall } from './entities';
+import { InjectRepository } from '@nestjs/typeorm';
+import { createDateFromFormat, handleExceptions } from 'src/common/utils';
 
 @Injectable()
 export class GameRoomsService {
-  create(createGameRoomDto: CreateGameRoomDto) {
-    return 'This action adds a new gameRoom';
+
+  constructor(
+    @InjectRepository(GameRoom)
+    private readonly gameRoomRepository: Repository<GameRoom>,
+
+    @InjectRepository(PickedBall)
+    private readonly pickedBallRepository: Repository<PickedBall>,
+  ) {
+
   }
 
-  findAll() {
-    return `This action returns all gameRooms`;
+  async findOne(id: string) {
+    const gameRoom = await this.gameRoomRepository.findOneBy({ id });
+
+    if (!gameRoom) throw new NotFoundException(`GameRoom with ID: ${id} not found.`);
+
+    return gameRoom;
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} gameRoom`;
+  async joinGame() {
+    try {
+
+      console.log(createDateFromFormat(new Date()));
+
+      const gameRoomData = {
+        status: "waiting_for_players"
+      };
+      const gameRoom = this.gameRoomRepository.create(gameRoomData);
+
+      await this.gameRoomRepository.save(gameRoom);
+
+      if (gameRoom.maxNumberPlayersReached()) {
+        // TODO: Launch to WS START_GAME_EVENT
+      }
+
+      return gameRoom;
+
+    } catch (error) {
+      handleExceptions(error, `GameRoomService.joinGame`);
+    }
   }
 
-  update(id: number, updateGameRoomDto: UpdateGameRoomDto) {
-    return `This action updates a #${id} gameRoom`;
+  async getCurrentlyPickedBalls(gameRoom: GameRoom): Promise<PickedBall[]> {
+    const pickedBalls = await this.pickedBallRepository.find({
+      select: ['id', 'letter', 'label', 'number'],
+      where: { gameRoomId: gameRoom.id }
+    });
+
+    return pickedBalls;
   }
 
-  remove(id: number) {
-    return `This action removes a #${id} gameRoom`;
+  generateBingoCards(generateBingoCards: GenerateBingoCardsDto) {
+
   }
+
+  evaluateBingoCards() {
+
+  }
+
+
 }

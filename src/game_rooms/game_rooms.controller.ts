@@ -1,34 +1,41 @@
-import { Controller, Get, Post, Body, Patch, Param, Delete } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, } from '@nestjs/common';
 import { GameRoomsService } from './game_rooms.service';
-import { CreateGameRoomDto } from './dto/create-game_room.dto';
-import { UpdateGameRoomDto } from './dto/update-game_room.dto';
+
+import { GameRoom } from './entities';
+import { EvaluateBingoCardsDto, GenerateBingoCardsDto } from './dto';
+import { ParseGameRoomPipe } from './pipes/parse-game_room.pipe';
+import { Auth } from 'src/auth/decorators';
+import { success } from 'src/common/utils/api-response.util';
+
 
 @Controller('game-rooms')
 export class GameRoomsController {
-  constructor(private readonly gameRoomsService: GameRoomsService) {}
+  constructor(private readonly gameRoomsService: GameRoomsService) { }
 
-  @Post()
-  create(@Body() createGameRoomDto: CreateGameRoomDto) {
-    return this.gameRoomsService.create(createGameRoomDto);
+
+  @Get('join-game')
+  @Auth()
+  async joinGame() {
+    const gameRoom = await this.gameRoomsService.joinGame();
+    return success(gameRoom);
   }
 
-  @Get()
-  findAll() {
-    return this.gameRoomsService.findAll();
+  @Get(':gameRoomId/currently-picked-balls')
+  async getCurrentlyPickedBalls(@Param('gameRoomId', ParseGameRoomPipe) gameRoom: GameRoom) {
+    const pickedBalls = await this.gameRoomsService.getCurrentlyPickedBalls(gameRoom);
+    return success(pickedBalls);
   }
 
-  @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.gameRoomsService.findOne(+id);
+  @Post('generate-bingo-cards')
+  generateBingoCards(@Body() generateBingoCardsDto: GenerateBingoCardsDto) {
+    return this.gameRoomsService.generateBingoCards(generateBingoCardsDto);
   }
 
-  @Patch(':id')
-  update(@Param('id') id: string, @Body() updateGameRoomDto: UpdateGameRoomDto) {
-    return this.gameRoomsService.update(+id, updateGameRoomDto);
+  @Post(':gameRooomId/evaluate-bingo-cards')
+  evaluateBingoCards(
+    @Param('gameRoomId', ParseGameRoomPipe) gameRoom: GameRoom,
+    @Body() evaluateBingoCardsDto: EvaluateBingoCardsDto) {
+    return this.gameRoomsService.evaluateBingoCards();
   }
 
-  @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.gameRoomsService.remove(+id);
-  }
 }

@@ -1,5 +1,5 @@
-import { BadRequestException, InternalServerErrorException, Logger } from "@nestjs/common";
-import {ConfigService} from "@nestjs/config";
+import { InternalServerErrorException, Logger } from "@nestjs/common";
+import { ConfigService } from "@nestjs/config";
 
 const DBErrors: string[] = [
     "23505",
@@ -16,11 +16,8 @@ export const handleExceptions = (error: any, source = 'DB Handler') => {
 
         logger.error(error);
 
-        if(DBErrors.includes(error.code))
-
-            throw  new InternalServerErrorException(`${error.detail}`);
-
-        return
+        if (DBErrors.includes(error.code))
+            throw new InternalServerErrorException(`${error.detail}`);
     }
 
     // if (error.status == 404) {

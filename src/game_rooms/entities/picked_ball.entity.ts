@@ -1,20 +1,23 @@
 import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
 import { GameRoom } from "./game_room.entity"
 
-@Entity("game_logs")
-export class GameLog {
+@Entity("picked_balls")
+export class PickedBall {
     @PrimaryGeneratedColumn("uuid")
     id: string
 
     @Column()
-    message: string
+    label: string
 
     @Column()
-    extraData: number
+    letter: string
+
+    @Column()
+    number: number
 
     @Column("uuid")
     gameRoomId: string
 
-    @ManyToOne(() => GameRoom, (gameRoom: GameRoom) => gameRoom.gameLogs)
+    @ManyToOne(() => GameRoom, (gameRoom: GameRoom) => gameRoom.pickedBalls)
     gameRoom: GameRoom
 }
