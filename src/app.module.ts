@@ -17,7 +17,7 @@ import * as process from "process";
             database: process.env.DB_NAME,
             username: process.env.DB_USERNAME,
             password: process.env.DB_PASSWORD,
-            ssl: process.env.APP_ENVIRONMENT !== 'dev',
+            ssl: true,
             autoLoadEntities: true,
             synchronize: true,
             // logging: true

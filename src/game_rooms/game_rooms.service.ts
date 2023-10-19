@@ -2,9 +2,10 @@ import { Injectable, NotFoundException } from '@nestjs/common';
 import { Repository } from 'typeorm';
 
 import { GenerateBingoCardsDto } from './dto';
-import { GameRoom, PickedBall } from './entities';
+import { GameRoom, PickedBall, PlayerList } from './entities';
 import { InjectRepository } from '@nestjs/typeorm';
-import { createDateFromFormat, handleExceptions } from 'src/common/utils';
+import { handleExceptions } from 'src/common/utils';
+import { User } from 'src/auth/entities/user.entity';
 
 @Injectable()
 export class GameRoomsService {
@@ -15,6 +16,9 @@ export class GameRoomsService {
 
     @InjectRepository(PickedBall)
     private readonly pickedBallRepository: Repository<PickedBall>,
+
+    @InjectRepository(PlayerList)
+    private readonly playerListRepository: Repository<PlayerList>,
   ) {
 
   }
@@ -27,17 +31,21 @@ export class GameRoomsService {
     return gameRoom;
   }
 
-  async joinGame() {
+  async joinGame(user: User) {
     try {
-
-      console.log(createDateFromFormat(new Date()));
-
       const gameRoomData = {
         status: "waiting_for_players"
       };
       const gameRoom = this.gameRoomRepository.create(gameRoomData);
-
       await this.gameRoomRepository.save(gameRoom);
+
+      const playerListData = {
+        gameRoomId: gameRoom.id,
+        userId: user.id,
+        status: 'added'
+      };
+      const playerList = this.playerListRepository.create(playerListData)
+      await this.playerListRepository.save(playerList)
 
       if (gameRoom.maxNumberPlayersReached()) {
         // TODO: Launch to WS START_GAME_EVENT
