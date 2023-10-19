@@ -1,9 +1,9 @@
-import {Module} from '@nestjs/common';
-import {ConfigModule} from '@nestjs/config';
-import {TypeOrmModule} from "@nestjs/typeorm";
-import {GameRoomsModule} from './game_rooms/game_rooms.module';
-import {AuthModule} from './auth/auth.module';
-import {CommonModule} from './common/common.module';
+import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from "@nestjs/typeorm";
+import { GameRoomsModule } from './game_rooms/game_rooms.module';
+import { AuthModule } from './auth/auth.module';
+import { CommonModule } from './common/common.module';
 import * as process from "process";
 
 @Module({

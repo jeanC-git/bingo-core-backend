@@ -1,5 +1,5 @@
-import {Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn} from "typeorm";
-import {Expose} from "class-transformer";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Expose } from "class-transformer";
 
 @Entity('users')
 export class User {
@@ -27,13 +27,13 @@ export class User {
     lastname: string;
 
     @CreateDateColumn()
-    created_at:string
+    createdAt: string
 
     @UpdateDateColumn()
-    updated_at:string
+    updatedAt: string
 
     @DeleteDateColumn()
-    deleted_at:string
+    deletedAt: string
 
 
     @Expose()

@@ -1,4 +1,5 @@
-import {Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, UpdateDateColumn} from "typeorm";
+import { Column, Entity, PrimaryGeneratedColumn, CreateDateColumn, DeleteDateColumn, UpdateDateColumn, OneToMany } from "typeorm";
+import { GameLog } from "./game_log.entity";
 
 @Entity("game_rooms")
 export class GameRoom {
@@ -21,23 +22,26 @@ export class GameRoom {
     duration: number
 
     @Column()
-    starts_at: string
+    startsAt: string
 
     @Column()
-    finishes_at: string
+    finishesAt: string
 
     @Column()
-    started_at: string
+    startedAt: string
 
     @Column()
-    finished_at: string
+    finishedAt: string
 
     @CreateDateColumn()
-    created_at: string
+    createdAt: string
 
     @UpdateDateColumn()
-    updated_at: string
+    updatedAt: string
 
     @DeleteDateColumn()
-    deleted_at: string
+    deletedAt: string
+
+    @OneToMany(() => GameLog, (game_log: GameLog) => game_log.game_room)
+    game_logs: GameLog[]
 }
