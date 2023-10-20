@@ -80,17 +80,17 @@ export class GameRoomsService {
 
     for (let index = 0; index < quantity; index++) {
 
-      const bingoCard = await BingoCard.generateBingoCard();
+      const { bingoCard, template } = await BingoCard.generateBingoCard();
 
       const bingoCardDB = this.bingoCardRepository.create({
         gameRoomId: gameRoom.id,
         userId: user.id,
-        json_data: JSON.stringify(bingoCard)
+        json_data: JSON.stringify({ bingoCard, template })
       });
 
       await this.bingoCardRepository.save(bingoCardDB);
 
-      bingoCards.push({ id: bingoCardDB.id, bingo_card: JSON.parse(bingoCardDB.json_data) });
+      bingoCards.push({ id: bingoCardDB.id, bingoCard, template });
 
     }
 

@@ -30,6 +30,7 @@ export class BingoCard {
     static async generateBingoCard() {
 
         const bingoCard = [];
+        const template = [];
 
         for (let i = 0; i < 5; i++) {
 
@@ -52,10 +53,11 @@ export class BingoCard {
             } while (partial.length < 5);
 
             bingoCard.push(partial);
+            template.push([0, 0, 0, 0, 0]);
 
         }
 
-        return bingoCard;
+        return { bingoCard, template };
 
     }
 }
