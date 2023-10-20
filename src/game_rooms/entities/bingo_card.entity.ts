@@ -15,9 +15,47 @@ export class BingoCard {
     @Column("uuid")
     gameRoomId: string
 
+    @Column("uuid")
+    userId: string
+
     @ManyToOne(() => GameRoom, (game_room: GameRoom) => game_room.bingoCards)
     gameRoom: GameRoom
 
     @ManyToOne(() => User, (user: User) => user.bingo_card)
     user: User
+
+
+
+
+    static async generateBingoCard() {
+
+        const bingoCard = [];
+
+        for (let i = 0; i < 5; i++) {
+
+            const partial = [];
+
+            do {
+
+                const element = Math.floor(Math.random() * (99 - 0)) + 0;
+
+                if (bingoCard.length === 2 && partial.length === 2) {
+                    partial.push(null);
+                    continue;
+                }
+
+                if (!partial.find(el => el === element)) {
+                    partial.push(element);
+                    continue;
+                }
+
+            } while (partial.length < 5);
+
+            bingoCard.push(partial);
+
+        }
+
+        return bingoCard;
+
+    }
 }

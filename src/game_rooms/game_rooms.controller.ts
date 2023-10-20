@@ -27,14 +27,23 @@ export class GameRoomsController {
   }
 
   @Get(':gameRoomId/currently-picked-balls')
+  @Auth()
+  @UseGuards(AuthGuard())
   async getCurrentlyPickedBalls(@Param('gameRoomId', ParseGameRoomPipe) gameRoom: GameRoom) {
     const pickedBalls = await this.gameRoomsService.getCurrentlyPickedBalls(gameRoom);
     return success(pickedBalls);
   }
 
-  @Post('generate-bingo-cards')
-  generateBingoCards(@Body() generateBingoCardsDto: GenerateBingoCardsDto) {
-    return this.gameRoomsService.generateBingoCards(generateBingoCardsDto);
+  @Post(':gameRoomId/generate-bingo-cards')
+  @Auth()
+  @UseGuards(AuthGuard())
+  async generateBingoCards(
+    @GetUser() user: User,
+    @Param('gameRoomId', ParseGameRoomPipe) gameRoom: GameRoom,
+    @Body() generateBingoCardsDto: GenerateBingoCardsDto) {
+    const bingoCards = await this.gameRoomsService.generateBingoCards(generateBingoCardsDto, user, gameRoom);
+
+    return success(bingoCards);
   }
 
   @Post(':gameRooomId/evaluate-bingo-cards')

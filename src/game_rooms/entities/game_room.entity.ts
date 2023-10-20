@@ -92,7 +92,8 @@ export class GameRoom {
 
 
 
-    public maxNumberPlayersReached(): boolean {
+    public hasReachedMaxPlayersJoined(): boolean {
         return false
     }
+
 }
