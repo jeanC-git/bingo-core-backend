@@ -64,6 +64,9 @@ export class GameRoom {
     @DeleteDateColumn()
     deletedAt: string
 
+    @Column({ default: 25 })
+    numbers_of_plays: number
+
 
     @OneToMany(
         () => BingoCard,
@@ -89,6 +92,28 @@ export class GameRoom {
 
     public hasReachedMaxPlayersJoined(): boolean {
         return this.payers_joined_count === this.max_player_allowed;
+    }
+
+    public lastGame() {
+        return this.balls_played === this.numbers_of_plays;
+    }
+
+    public isStarting() {
+        return this.balls_played === 0;
+    }
+
+    public static getAvailableBalls(excludedBalls: PickedBall[]) {
+
+        const totalNumbers = [];
+        const excludedNumbers = excludedBalls.map(pickedBall => pickedBall.number);
+
+        for (let number = 0; number < 99; number++) {
+            if (!excludedNumbers.includes(number)) {
+                totalNumbers.push(number);
+            }
+        }
+
+        return totalNumbers;
     }
 
 }

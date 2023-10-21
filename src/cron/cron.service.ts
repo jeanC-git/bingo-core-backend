@@ -14,9 +14,14 @@ export class CronService {
     }
 
 
-    @Cron(CronExpression.EVERY_SECOND)
-    checkGameRoomStatusCron() {
-        // this.gameRoomService.checkGameRoomStatus()
+    @Cron(CronExpression.EVERY_5_SECONDS)
+    startGameRoomsCron() {
+        this.gameRoomService.handleStartGameRooms()
+    }
+
+    @Cron(CronExpression.EVERY_5_SECONDS)
+    getNextBallCron() {
+        this.gameRoomService.handleGetNextBall()
     }
 
 }

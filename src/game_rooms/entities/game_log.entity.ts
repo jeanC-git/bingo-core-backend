@@ -1,4 +1,4 @@
-import { Column, Entity, ManyToOne, PrimaryGeneratedColumn } from "typeorm"
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm"
 import { GameRoom } from "./game_room.entity"
 
 @Entity("game_logs")
@@ -10,11 +10,20 @@ export class GameLog {
     message: string
 
     @Column()
-    extraData: number
+    extraData: string
 
     @Column("uuid")
     gameRoomId: string
 
     @ManyToOne(() => GameRoom, (gameRoom: GameRoom) => gameRoom.gameLogs)
     gameRoom: GameRoom
+
+    @CreateDateColumn()
+    createdAt: string
+
+    @UpdateDateColumn()
+    updatedAt: string
+
+    @DeleteDateColumn()
+    deletedAt: string
 }

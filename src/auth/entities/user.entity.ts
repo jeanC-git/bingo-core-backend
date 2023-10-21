@@ -1,4 +1,4 @@
-import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
+import { Column, CreateDateColumn, DeleteDateColumn, Entity, ManyToOne, OneToMany, PrimaryGeneratedColumn, UpdateDateColumn } from "typeorm";
 import { Expose } from "class-transformer";
 import { BingoCard } from "src/game_rooms/entities/bingo_card.entity";
 
@@ -36,7 +36,7 @@ export class User {
     @DeleteDateColumn()
     deletedAt: string
 
-    @ManyToOne(() => BingoCard, (bingo_card: BingoCard) => bingo_card.user)
+    @OneToMany(() => BingoCard, (bingo_card: BingoCard) => bingo_card.user)
     bingo_card: BingoCard
 
 

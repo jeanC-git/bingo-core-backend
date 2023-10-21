@@ -1,8 +1,8 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { Repository } from 'typeorm';
+import { In, Repository } from 'typeorm';
 
 import { GenerateBingoCardsDto } from './dto';
-import { BingoCard, GameRoom, PickedBall, PlayerList } from './entities';
+import { BingoCard, GameLog, GameRoom, PickedBall, PlayerList } from './entities';
 import { InjectRepository } from '@nestjs/typeorm';
 
 // import { WssClientService } from 'src/wss-client/wss-client.service';
@@ -23,6 +23,9 @@ export class GameRoomsService {
 
     @InjectRepository(PlayerList)
     private readonly playerListRepository: Repository<PlayerList>,
+
+    @InjectRepository(GameLog)
+    private readonly gameLogRepository: Repository<GameLog>,
 
     @InjectRepository(BingoCard)
     private readonly bingoCardRepository: Repository<BingoCard>,
@@ -110,10 +113,21 @@ export class GameRoomsService {
 
   }
 
+  async saveHistoryLog(gameRoom: GameRoom, message: string) {
+
+    const gameLog = this.gameLogRepository.create({
+      gameRoomId: gameRoom.id,
+      message: message,
+      extraData: JSON.stringify([])
+    });
+
+    await this.gameLogRepository.save(gameLog);
+  }
+
 
   startGame(gameRoom: GameRoom) {
     this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL')
-    this.wssClientGateway.wss.emit('GameRoomEventStatusUpdate', { someData: 'some-data' });
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, {});
   }
 
 
@@ -122,8 +136,85 @@ export class GameRoomsService {
     await this.gameRoomRepository.save(gameRoom);
   }
 
-  checkGameRoomStatus() {
-    console.log("on game room service");
+  async handleStartGameRooms() {
 
+    const gameRooms = await this.gameRoomRepository.find({
+      where: {
+        status: In(["WAITING_FOR_PLAYERS", "WAITING_NEXT_BALL"])
+      }
+    });
+
+    if (gameRooms.length > 0) {
+      gameRooms.forEach(async (gameRoom: GameRoom) => {
+
+        this.startGame(gameRoom)
+
+        if (gameRoom.isStarting()) {
+          await this.saveHistoryLog(gameRoom, `Iniciando partida ...`);
+        } else {
+
+          await this.saveHistoryLog(gameRoom, `Iniciando próxima jugada ...`);
+        }
+
+      });
+    }
+  }
+
+  async handleGetNextBall() {
+    const gameRooms = await this.gameRoomRepository.find({
+      where: {
+        status: In(["GETTING_NEXT_BALL"]),
+        numbers_of_plays: 25
+      }
+    });
+
+    gameRooms.forEach(async (gameRoom: GameRoom) => {
+
+      await this.saveHistoryLog(gameRoom, 'Obteniendo próximo número ...');
+
+      const currentlyPickedBalls = await this.getCurrentlyPickedBalls(gameRoom);
+
+      const availableBalls = GameRoom.getAvailableBalls(currentlyPickedBalls);
+
+      const randomNumber = availableBalls[Math.floor(Math.random() * availableBalls.length)];
+
+      const pickedBallData = this.pickedBallRepository.create({
+        gameRoomId: gameRoom.id,
+        label: `A${randomNumber}`,
+        letter: 'A',
+        number: randomNumber,
+      });
+
+      const pickedBallDB = await this.pickedBallRepository.save(pickedBallData);
+
+      gameRoom.balls_played = gameRoom.balls_played + 1;
+      await this.gameRoomRepository.save(gameRoom);
+      await this.saveHistoryLog(gameRoom, `Número obtenido: ${pickedBallDB.number}`);
+
+      if (gameRoom.lastGame()) {
+
+        this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM')
+        this.broadcastFinishedGameRoom(gameRoom);
+        await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
+
+      } else {
+
+        this.broadcastPickedBall(gameRoom, pickedBallDB);
+        this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL')
+        await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
+      }
+
+    });
+
+
+  }
+
+  broadcastFinishedGameRoom(gameRoom: GameRoom) {
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'FINISHED_GAME_EVENT' });
+
+  }
+
+  broadcastPickedBall(gameRoom: GameRoom, pickedBall: PickedBall) {
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'PICKED_BALL_EVET', data: pickedBall });
   }
 }
