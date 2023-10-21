@@ -87,13 +87,8 @@ export class GameRoom {
 
 
 
-
-
-
-
-
     public hasReachedMaxPlayersJoined(): boolean {
-        return false
+        return this.payers_joined_count === this.max_player_allowed;
     }
 
 }

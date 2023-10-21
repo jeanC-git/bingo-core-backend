@@ -4,7 +4,10 @@ import { TypeOrmModule } from "@nestjs/typeorm";
 import { GameRoomsModule } from './game_rooms/game_rooms.module';
 import { AuthModule } from './auth/auth.module';
 import { CommonModule } from './common/common.module';
+import { WssClientModule } from './wss-client/wss-client.module';
 import * as process from "process";
+import { ScheduleModule } from '@nestjs/schedule';
+import { CronModuleModule } from './cron-module/cron-module.module';
 
 @Module({
     imports: [
@@ -23,11 +26,17 @@ import * as process from "process";
             // logging: true
         }),
 
+        ScheduleModule.forRoot(),
+
         GameRoomsModule,
 
         AuthModule,
 
-        CommonModule
+        CommonModule,
+
+        WssClientModule,
+
+        CronModuleModule
     ],
 })
 export class AppModule {

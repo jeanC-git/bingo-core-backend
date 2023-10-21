@@ -4,6 +4,10 @@ import { Repository } from 'typeorm';
 import { GenerateBingoCardsDto } from './dto';
 import { BingoCard, GameRoom, PickedBall, PlayerList } from './entities';
 import { InjectRepository } from '@nestjs/typeorm';
+
+// import { WssClientService } from 'src/wss-client/wss-client.service';
+import { WssClientGateway } from 'src/wss-client/wss-client.gateway';
+
 import { handleExceptions } from 'src/common/utils';
 import { User } from 'src/auth/entities/user.entity';
 
@@ -22,6 +26,9 @@ export class GameRoomsService {
 
     @InjectRepository(BingoCard)
     private readonly bingoCardRepository: Repository<BingoCard>,
+
+    private readonly wssClientGateway: WssClientGateway,
+
   ) {
 
   }
@@ -37,7 +44,7 @@ export class GameRoomsService {
   async joinGame(user: User) {
     try {
       const gameRoomData = {
-        status: "waiting_for_players"
+        status: "WAITING_FOR_PLAYERS"
       };
       const gameRoom = this.gameRoomRepository.create(gameRoomData);
       await this.gameRoomRepository.save(gameRoom);
@@ -51,7 +58,7 @@ export class GameRoomsService {
       await this.playerListRepository.save(playerList)
 
       if (gameRoom.hasReachedMaxPlayersJoined()) {
-        // TODO: Launch to WS START_GAME_EVENT
+        this.startGame(gameRoom)
       }
 
       return {
@@ -102,5 +109,16 @@ export class GameRoomsService {
 
   }
 
+
+  startGame(gameRoom: GameRoom) {
+    this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL')
+    this.wssClientGateway.wss.emit('GameRoomEventStatusUpdate', { someData: 'some-data' });
+  }
+
+
+  async updateStatusTo(gameRoom: GameRoom, newStatus: string) {
+    gameRoom.status = newStatus;
+    await this.gameRoomRepository.save(gameRoom);
+  }
 
 }
