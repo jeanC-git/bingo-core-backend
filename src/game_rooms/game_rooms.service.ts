@@ -61,6 +61,7 @@ export class GameRoomsService {
         this.startGame(gameRoom)
       }
 
+
       return {
         id: gameRoom.id
       };
@@ -121,4 +122,8 @@ export class GameRoomsService {
     await this.gameRoomRepository.save(gameRoom);
   }
 
+  checkGameRoomStatus() {
+    console.log("on game room service");
+
+  }
 }

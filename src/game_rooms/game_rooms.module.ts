@@ -22,6 +22,11 @@ import { WssClientGateway } from 'src/wss-client/wss-client.gateway';
 
         WssClientGateway
 
+    ],
+    exports: [
+
+        GameRoomsService
+
     ]
 })
 export class GameRoomsModule {

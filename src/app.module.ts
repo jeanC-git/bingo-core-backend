@@ -7,7 +7,7 @@ import { CommonModule } from './common/common.module';
 import { WssClientModule } from './wss-client/wss-client.module';
 import * as process from "process";
 import { ScheduleModule } from '@nestjs/schedule';
-import { CronModuleModule } from './cron-module/cron-module.module';
+import { CronModule } from './cron/cron.module';
 
 @Module({
     imports: [
@@ -36,7 +36,8 @@ import { CronModuleModule } from './cron-module/cron-module.module';
 
         WssClientModule,
 
-        CronModuleModule
+        CronModule,
+
     ],
 })
 export class AppModule {
