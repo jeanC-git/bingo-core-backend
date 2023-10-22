@@ -13,9 +13,9 @@ export class WssClientService {
     }
 
 
-    async publishEvent() {
-        console.log('publicando evento....');
+    // async publishEvent() {
+    //     console.log('publicando evento....');
 
-        this.client.emit('GameRoomEventStatusUpdate', { someData: 'some-data' });
-    }
+    //     this.client.emit('GameRoomEventStatusUpdate', { someData: 'some-data' });
+    // }
 }

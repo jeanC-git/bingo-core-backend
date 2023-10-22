@@ -127,7 +127,7 @@ export class GameRoomsService {
 
   startGame(gameRoom: GameRoom) {
     this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL')
-    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, {});
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'GETTING_NEXT_BALL_EVENT' });
   }
 
 
@@ -172,41 +172,37 @@ export class GameRoomsService {
 
       await this.saveHistoryLog(gameRoom, 'Obteniendo próximo número ...');
 
-      const currentlyPickedBalls = await this.getCurrentlyPickedBalls(gameRoom);
+      setTimeout(async () => {
+        const currentlyPickedBalls = await this.getCurrentlyPickedBalls(gameRoom);
+        const availableBalls = GameRoom.getAvailableBalls(currentlyPickedBalls);
+        const randomNumber = availableBalls[Math.floor(Math.random() * availableBalls.length)];
 
-      const availableBalls = GameRoom.getAvailableBalls(currentlyPickedBalls);
+        const pickedBallData = this.pickedBallRepository.create({
+          gameRoomId: gameRoom.id,
+          label: `A${randomNumber}`,
+          letter: 'A',
+          number: randomNumber,
+        });
+        const pickedBallDB = await this.pickedBallRepository.save(pickedBallData);
 
-      const randomNumber = availableBalls[Math.floor(Math.random() * availableBalls.length)];
+        gameRoom.balls_played = gameRoom.balls_played + 1;
+        await this.gameRoomRepository.save(gameRoom);
+        await this.saveHistoryLog(gameRoom, `Número obtenido: ${pickedBallDB.number}`);
 
-      const pickedBallData = this.pickedBallRepository.create({
-        gameRoomId: gameRoom.id,
-        label: `A${randomNumber}`,
-        letter: 'A',
-        number: randomNumber,
-      });
+        if (gameRoom.lastGame()) {
 
-      const pickedBallDB = await this.pickedBallRepository.save(pickedBallData);
+          this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM')
+          this.broadcastFinishedGameRoom(gameRoom);
+          await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
 
-      gameRoom.balls_played = gameRoom.balls_played + 1;
-      await this.gameRoomRepository.save(gameRoom);
-      await this.saveHistoryLog(gameRoom, `Número obtenido: ${pickedBallDB.number}`);
+        } else {
 
-      if (gameRoom.lastGame()) {
-
-        this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM')
-        this.broadcastFinishedGameRoom(gameRoom);
-        await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
-
-      } else {
-
-        this.broadcastPickedBall(gameRoom, pickedBallDB);
-        this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL')
-        await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
-      }
-
+          this.broadcastPickedBall(gameRoom, pickedBallDB);
+          this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL')
+          await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
+        }
+      }, 4000);
     });
-
-
   }
 
   broadcastFinishedGameRoom(gameRoom: GameRoom) {
