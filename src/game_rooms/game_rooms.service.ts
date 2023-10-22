@@ -175,32 +175,44 @@ export class GameRoomsService {
       setTimeout(async () => {
         const currentlyPickedBalls = await this.getCurrentlyPickedBalls(gameRoom);
         const availableBalls = GameRoom.getAvailableBalls(currentlyPickedBalls);
-        const randomNumber = availableBalls[Math.floor(Math.random() * availableBalls.length)];
 
-        const pickedBallData = this.pickedBallRepository.create({
-          gameRoomId: gameRoom.id,
-          label: `A${randomNumber}`,
-          letter: 'A',
-          number: randomNumber,
-        });
-        const pickedBallDB = await this.pickedBallRepository.save(pickedBallData);
+        if (availableBalls.length > 0) {
 
-        gameRoom.balls_played = gameRoom.balls_played + 1;
-        await this.gameRoomRepository.save(gameRoom);
-        await this.saveHistoryLog(gameRoom, `Número obtenido: ${pickedBallDB.number}`);
+          const randomNumber = availableBalls[Math.floor(Math.random() * availableBalls.length)];
 
-        if (gameRoom.lastGame()) {
+          const pickedBallData = this.pickedBallRepository.create({
+            gameRoomId: gameRoom.id,
+            label: `A${randomNumber}`,
+            letter: 'A',
+            number: randomNumber,
+          });
+          const pickedBallDB = await this.pickedBallRepository.save(pickedBallData);
 
-          this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM')
-          this.broadcastFinishedGameRoom(gameRoom);
-          await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
+          gameRoom.balls_played = gameRoom.balls_played + 1;
+          await this.gameRoomRepository.save(gameRoom);
+          await this.saveHistoryLog(gameRoom, `Número obtenido: ${pickedBallDB.number}`);
+
+          if (gameRoom.lastGame()) {
+
+            this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM')
+            this.broadcastFinishedGameRoom(gameRoom);
+            await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
+
+          } else {
+
+            this.broadcastPickedBall(gameRoom, pickedBallDB);
+            this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL')
+            await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
+          }
 
         } else {
 
-          this.broadcastPickedBall(gameRoom, pickedBallDB);
-          this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL')
-          await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
+          await this.saveHistoryLog(gameRoom, 'No hay más bolitas disponibles, revisar los logs del juego.');
+          this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM')
+
         }
+
+
       }, 4000);
     });
   }
