@@ -1,4 +1,4 @@
-import { Injectable, UnauthorizedException } from '@nestjs/common';
+import { BadRequestException, Injectable, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from "@nestjs/typeorm";
 import { JwtService } from '@nestjs/jwt';
 
@@ -48,6 +48,14 @@ export class AuthService {
     async register(registerDto: RegisterDto) {
         try {
 
+            const userDB = await this.validateEmailExistence(registerDto.email);
+
+            if (userDB) {
+
+                throw new BadRequestException("Email already registered.");
+
+            }
+
             const { password, ...userData } = registerDto;
 
             const user = this.userRepository.create({
@@ -64,9 +72,16 @@ export class AuthService {
             };
 
         } catch (error) {
+
             handleExceptions(error, `TicketsService.create`);
 
         }
+    }
+
+    async validateEmailExistence(email: string) {
+        const userDB = await this.userRepository.findOne({ where: { email } });
+
+        return userDB;
     }
 
     generateJwt(payload: JwtPayload) {

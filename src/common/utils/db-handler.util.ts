@@ -1,10 +1,14 @@
-import { InternalServerErrorException, Logger } from "@nestjs/common";
+import { BadRequestException, InternalServerErrorException, Logger } from "@nestjs/common";
 import { ConfigService } from "@nestjs/config";
 
 const DBErrors: string[] = [
     "23505",
     "23503"
 ];
+
+const CommonErrors: number[] = [
+    400, 404, 401
+]
 
 
 const configService = new ConfigService();
@@ -20,9 +24,9 @@ export const handleExceptions = (error: any, source = 'DB Handler') => {
             throw new InternalServerErrorException(`${error.detail}`);
     }
 
-    // if (error.status == 404) {
-    //     throw new BadRequestException(`${error.message}`);
-    // }
+    if (CommonErrors.includes(error.status)) {
+        throw new BadRequestException(`${error.message}`);
+    }
 
     throw new InternalServerErrorException("Unexpected error - Check logs");
 }
