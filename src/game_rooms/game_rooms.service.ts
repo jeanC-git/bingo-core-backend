@@ -223,6 +223,6 @@ export class GameRoomsService {
   }
 
   broadcastPickedBall(gameRoom: GameRoom, pickedBall: PickedBall) {
-    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'PICKED_BALL_EVET', data: pickedBall });
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'PICKED_BALL_EVENT', data: pickedBall });
   }
 }
