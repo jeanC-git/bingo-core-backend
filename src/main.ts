@@ -1,6 +1,6 @@
-import {NestFactory} from '@nestjs/core';
-import {AppModule} from './app.module';
-import {ValidationPipe} from "@nestjs/common";
+import { NestFactory } from '@nestjs/core';
+import { AppModule } from './app.module';
+import { ValidationPipe } from "@nestjs/common";
 // import {WinstonModule} from "nest-winston";
 // import {format, transports} from "winston";
 
@@ -35,7 +35,9 @@ async function bootstrap() {
     });
 
     app.setGlobalPrefix("/api");
-    app.enableCors();
+    app.enableCors({
+        origin: ['*'],
+    });
 
     app.useGlobalPipes(
         new ValidationPipe({
