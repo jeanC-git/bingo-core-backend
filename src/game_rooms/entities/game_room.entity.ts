@@ -64,7 +64,7 @@ export class GameRoom {
     @DeleteDateColumn()
     deletedAt: string
 
-    @Column({ default: 25 })
+    @Column({ default: 5 })
     numbers_of_plays: number
 
 
