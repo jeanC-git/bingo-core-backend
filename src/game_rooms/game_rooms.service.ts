@@ -163,8 +163,7 @@ export class GameRoomsService {
   async handleGetNextBall() {
     const gameRooms = await this.gameRoomRepository.find({
       where: {
-        status: In(["GETTING_NEXT_BALL"]),
-        numbers_of_plays: 25
+        status: In(["GETTING_NEXT_BALL"])
       }
     });
 
