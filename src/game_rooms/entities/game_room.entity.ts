@@ -14,7 +14,7 @@ export class GameRoom {
     status: string
 
     @Column({
-        default: 25
+        default: 5
     })
     max_player_allowed: number
 
