@@ -1,15 +1,15 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
 import { In, Repository } from 'typeorm';
 
-import { GenerateBingoCardsDto } from './dto';
+import { EvaluateBingoCardsDto, GenerateBingoCardsDto } from './dto';
 import { BingoCard, GameLog, GameRoom, PickedBall, PlayerList } from './entities';
 import { InjectRepository } from '@nestjs/typeorm';
 
-// import { WssClientService } from 'src/wss-client/wss-client.service';
 import { WssClientGateway } from 'src/wss-client/wss-client.gateway';
 
 import { handleExceptions } from 'src/common/utils';
 import { User } from 'src/auth/entities/user.entity';
+import { BingoCardFront } from './dto/evaluate-bingo-cards.dto';
 
 @Injectable()
 export class GameRoomsService {
@@ -109,10 +109,6 @@ export class GameRoomsService {
     return bingoCards;
   }
 
-  evaluateBingoCards() {
-
-  }
-
   async saveHistoryLog(gameRoom: GameRoom, message: string) {
 
     const gameLog = this.gameLogRepository.create({
@@ -124,12 +120,10 @@ export class GameRoomsService {
     await this.gameLogRepository.save(gameLog);
   }
 
-
   startGame(gameRoom: GameRoom) {
     this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL')
-    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'GETTING_NEXT_BALL_EVENT' });
+    this.broadcastStartGame(gameRoom);
   }
-
 
   async updateStatusTo(gameRoom: GameRoom, newStatus: string) {
     gameRoom.status = newStatus;
@@ -218,10 +212,34 @@ export class GameRoomsService {
 
   broadcastFinishedGameRoom(gameRoom: GameRoom) {
     this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'FINISHED_GAME_EVENT' });
-
   }
 
   broadcastPickedBall(gameRoom: GameRoom, pickedBall: PickedBall) {
     this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'PICKED_BALL_EVENT', data: pickedBall });
+  }
+
+  broadcastStartGame(gameRoom: GameRoom) {
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, { event: 'GETTING_NEXT_BALL_EVENT' });
+  }
+
+
+  evaluateBingoCards(gameRoom: GameRoom, evaluateBingoCardsDto: EvaluateBingoCardsDto) {
+
+    const { bingoCards } = evaluateBingoCardsDto;
+
+    bingoCards.forEach((bingoCard: BingoCardFront) => {
+
+      const score = this.evaluateBingoCard(bingoCard)
+
+
+    });
+
+    return {
+      score: 1000
+    };
+  }
+
+  evaluateBingoCard(bingoCard: BingoCardFront) {
+
   }
 }

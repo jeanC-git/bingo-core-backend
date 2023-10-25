@@ -50,7 +50,7 @@ export class GameRoomsController {
   evaluateBingoCards(
     @Param('gameRoomId', ParseGameRoomPipe) gameRoom: GameRoom,
     @Body() evaluateBingoCardsDto: EvaluateBingoCardsDto) {
-    return this.gameRoomsService.evaluateBingoCards();
+    return this.gameRoomsService.evaluateBingoCards(gameRoom, evaluateBingoCardsDto);
   }
 
 }

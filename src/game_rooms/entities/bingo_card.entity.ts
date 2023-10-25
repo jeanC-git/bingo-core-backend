@@ -24,9 +24,6 @@ export class BingoCard {
     @ManyToOne(() => User, (user: User) => user.bingo_card)
     user: User
 
-
-
-
     static async generateBingoCard() {
 
         const bingoCard = [];
@@ -58,6 +55,10 @@ export class BingoCard {
         }
 
         return { bingoCard, template };
+
+    }
+
+    evaluate() {
 
     }
 }
