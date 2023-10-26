@@ -18,7 +18,6 @@ export class HttpRequest {
     @Column({ type: 'json', nullable: true })
     resBody: string
 
-
     @Column({ nullable: true })
     resStatusCode: string
 

@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 
 import { map } from 'rxjs/operators';
-import { HttpRequest } from '../entities/http-request.entity';
+import { HttpRequest } from '../../http-request/entities/http-request.entity';
 
 @Injectable()
 export class LoggingInterceptor implements NestInterceptor {

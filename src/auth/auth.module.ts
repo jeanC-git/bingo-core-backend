@@ -11,7 +11,7 @@ import { AuthController } from './auth.controller';
 import { User } from "./entities/user.entity";
 
 import { JwtStrategy } from './strategies/jwt.strategy';
-import { HttpRequest } from 'src/common/entities/http-request.entity';
+import { HttpRequest } from 'src/http-request/entities/http-request.entity';
 
 @Module({
     controllers: [AuthController],

@@ -8,7 +8,7 @@ import { GameRoom, GameLog, PickedBall, BingoCard, PlayerList } from './entities
 import { AuthModule } from 'src/auth/auth.module';
 import { WssClientModule } from 'src/wss-client/wss-client.module';
 import { WssClientGateway } from 'src/wss-client/wss-client.gateway';
-import { HttpRequest } from 'src/common/entities/http-request.entity';
+import { HttpRequest } from 'src/http-request/entities/http-request.entity';
 
 @Module({
     controllers: [GameRoomsController],
