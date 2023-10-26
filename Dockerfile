@@ -1,20 +1,49 @@
 # Base image
-FROM node:18
+FROM node:18 as development
 
-# Create app directory
-WORKDIR /usr/src/app
+# Optional NPM automation (auth) token build argument
+# ARG NPM_TOKEN
 
-# A wildcard is used to ensure both package.json AND package-lock.json are copied
+# Optionally authenticate NPM registry
+# RUN npm set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+
+WORKDIR /app
+
+# Copy configuration files
+COPY tsconfig*.json ./
 COPY package*.json ./
 
-# Install app dependencies
-RUN npm install
+# Install dependencies from package-lock.json, see https://docs.npmjs.com/cli/v7/commands/npm-ci
+RUN npm ci
 
-# Bundle app source
-COPY . .
+# Copy application sources (.ts, .tsx, js)
+COPY src/ src/
 
-# Creates a "dist" folder with the production build
+# Build application (produces dist/ folder)
 RUN npm run build
 
-# Start the server using the production build
+# Runtime (production) layer
+FROM node:16-alpine as production
+
+# Optional NPM automation (auth) token build argument
+# ARG NPM_TOKEN
+
+# Optionally authenticate NPM registry
+# RUN npm set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+
+WORKDIR /app
+
+# Copy dependencies files
+COPY package*.json ./
+
+# Install runtime dependecies (without dev/test dependecies)
+RUN npm ci --omit=dev
+
+# Copy production build
+COPY --from=development /app/dist/ ./dist/
+
+# Expose application port
+EXPOSE 3000
+
+# Start application
 CMD [ "node", "dist/main.js" ]
