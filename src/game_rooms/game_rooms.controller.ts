@@ -1,8 +1,9 @@
-import { Controller, Get, Post, Body, Param, UseGuards, } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, UseInterceptors, } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { GameRoomsService } from './game_rooms.service';
 
+import { LoggingInterceptor } from '../common/interceptors/logging.interceptor';
 import { Auth, GetUser } from 'src/auth/decorators';
 import { GameRoom } from './entities';
 import { EvaluateBingoCardsDto, GenerateBingoCardsDto } from './dto';
@@ -11,6 +12,7 @@ import { ParseGameRoomPipe } from './pipes/parse-game_room.pipe';
 import { success } from 'src/common/utils/api-response.util';
 import { User } from 'src/auth/entities/user.entity';
 
+@UseInterceptors(LoggingInterceptor)
 @Controller('game-rooms')
 export class GameRoomsController {
   constructor(private readonly gameRoomsService: GameRoomsService) { }

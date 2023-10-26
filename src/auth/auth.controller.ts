@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body } from '@nestjs/common';
+import { Controller, Get, Post, Body, HttpCode, HttpStatus } from '@nestjs/common';
 import { AuthService } from './auth.service';
 
 import { Auth } from './decorators';
@@ -21,6 +21,7 @@ export class AuthController {
   }
 
   @Get("/check-status")
+  @HttpCode(HttpStatus.NO_CONTENT)
   @Auth()
   checkStatus() {
     return this.authService.checkStatus();
