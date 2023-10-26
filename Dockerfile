@@ -1,49 +1,30 @@
-# Base image
-FROM node:18 as development
+FROM node:lts as builder
 
-# Optional NPM automation (auth) token build argument
-# ARG NPM_TOKEN
+# Create app directory
+WORKDIR /usr/src/app
 
-# Optionally authenticate NPM registry
-# RUN npm set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+# Install app dependencies
+COPY package.json yarn.lock ./
 
-WORKDIR /app
+RUN yarn install --frozen-lockfile
 
-# Copy configuration files
-COPY tsconfig*.json ./
-COPY package*.json ./
+COPY . .
 
-# Install dependencies from package-lock.json, see https://docs.npmjs.com/cli/v7/commands/npm-ci
-RUN npm ci
+RUN yarn build
 
-# Copy application sources (.ts, .tsx, js)
-COPY src/ src/
+FROM node:lts-slim
 
-# Build application (produces dist/ folder)
-RUN npm run build
+ENV NODE_ENV production
+USER node
 
-# Runtime (production) layer
-FROM node:16-alpine as production
+# Create app directory
+WORKDIR /usr/src/app
 
-# Optional NPM automation (auth) token build argument
-# ARG NPM_TOKEN
+# Install app dependencies
+COPY package.json yarn.lock ./
 
-# Optionally authenticate NPM registry
-# RUN npm set //registry.npmjs.org/:_authToken ${NPM_TOKEN}
+RUN yarn install --production --frozen-lockfile
 
-WORKDIR /app
+COPY --from=builder /usr/src/app/dist ./dist
 
-# Copy dependencies files
-COPY package*.json ./
-
-# Install runtime dependecies (without dev/test dependecies)
-RUN npm ci --omit=dev
-
-# Copy production build
-COPY --from=development /app/dist/ ./dist/
-
-# Expose application port
-EXPOSE 3000
-
-# Start application
 CMD [ "node", "dist/main.js" ]
