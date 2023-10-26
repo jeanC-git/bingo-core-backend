@@ -21,6 +21,7 @@ export class HttpRequestService {
     queryBuilder
       .orderBy("http_requests.createdAt", pageOptionsDto.order)
       .skip(pageOptionsDto.skip)
+
       .take(pageOptionsDto.take);
 
     const itemCount = await queryBuilder.getCount();
