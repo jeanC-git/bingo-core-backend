@@ -9,6 +9,9 @@ export class HttpRequest {
     @Column()
     ip: string
 
+    @Column({ nullable: true })
+    userId: string
+
     @Column('json')
     reqParams: string
 
