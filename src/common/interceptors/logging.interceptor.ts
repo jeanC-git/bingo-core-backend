@@ -21,7 +21,7 @@ export class LoggingInterceptor implements NestInterceptor {
         const customReqBody = {
             startsExecutionAt: startsExecutionAt.toString(),
             httpMethod: req.method ?? 'unidentified-method',
-            // userId: req.user?.id ?? 'no-user',
+            userId: req.user || 'no-user',
             reqParams: JSON.stringify(req.params),
             reqBody: JSON.stringify(req.body),
             ip: req.ip ?? 'no-ip',
