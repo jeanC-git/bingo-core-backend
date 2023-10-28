@@ -14,7 +14,9 @@ const CommonErrors: number[] = [
 const configService = new ConfigService();
 export const handleExceptions = (error: any, source = 'DB Handler') => {
     // const appEnvironment = configService.get("APP_ENVIRONMENT");
+    const logger = new Logger(source);
 
+    logger.error(error);
     // if (appEnvironment === "dev") {
     //     const logger = new Logger(source);
 
