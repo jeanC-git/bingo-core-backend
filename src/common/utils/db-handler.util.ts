@@ -13,20 +13,23 @@ const CommonErrors: number[] = [
 
 const configService = new ConfigService();
 export const handleExceptions = (error: any, source = 'DB Handler') => {
-    const appEnvironment = configService.get("APP_ENVIRONMENT");
+    // const appEnvironment = configService.get("APP_ENVIRONMENT");
 
-    if (appEnvironment === "dev") {
-        const logger = new Logger(source);
+    // if (appEnvironment === "dev") {
+    //     const logger = new Logger(source);
 
-        logger.error(error);
+    //     logger.error(error);
 
-        if (DBErrors.includes(error.code))
-            throw new InternalServerErrorException(`${error.detail}`);
-    }
+    //     if (DBErrors.includes(error.code))
+    //         throw new InternalServerErrorException(`${error.detail}`);
+    // }
 
-    if (CommonErrors.includes(error.status)) {
-        throw new BadRequestException(`${error.message}`);
-    }
+    // if (CommonErrors.includes(error.status)) {
+    //     throw new BadRequestException(`${error.message}`);
+    // }
 
-    throw new InternalServerErrorException("Unexpected error - Check logs");
+    // throw new InternalServerErrorException("Unexpected error - Check logs");
+
+    throw new InternalServerErrorException(error);
+
 }
