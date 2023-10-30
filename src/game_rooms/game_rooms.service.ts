@@ -216,7 +216,7 @@ export class GameRoomsService {
           );
           this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM');
         }
-      }, 4000);
+      }, 2000);
     });
   }
 
