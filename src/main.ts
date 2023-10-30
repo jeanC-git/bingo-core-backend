@@ -1,6 +1,7 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { ValidationPipe } from "@nestjs/common";
+import { HttpExceptionFilter } from './common/utils/http-exception-filter';
 // import {WinstonModule} from "nest-winston";
 // import {format, transports} from "winston";
 
@@ -33,6 +34,9 @@ async function bootstrap() {
         //     ],
         // }),
     });
+
+
+    app.useGlobalFilters(new HttpExceptionFilter());
 
     app.setGlobalPrefix("/api");
     app.enableCors();

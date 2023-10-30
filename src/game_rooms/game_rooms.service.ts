@@ -1,5 +1,5 @@
 import { Injectable, NotFoundException } from '@nestjs/common';
-import { In, Repository } from 'typeorm';
+import { DataSource, In, Repository } from 'typeorm';
 
 import { EvaluateBingoCardsDto, GenerateBingoCardsDto } from './dto';
 import {
@@ -20,6 +20,8 @@ import { BingoCardFront } from './dto/evaluate-bingo-cards.dto';
 @Injectable()
 export class GameRoomsService {
   constructor(
+    private readonly dataSource: DataSource,
+
     @InjectRepository(GameRoom)
     private readonly gameRoomRepository: Repository<GameRoom>,
 
@@ -48,6 +50,11 @@ export class GameRoomsService {
   }
 
   async joinGame(user: User) {
+    const queryRunner = this.dataSource.createQueryRunner();
+
+    await queryRunner.connect();
+    await queryRunner.startTransaction();
+
     try {
       const gameRoomData = {
         status: 'WAITING_FOR_PLAYERS',
@@ -67,11 +74,17 @@ export class GameRoomsService {
         this.startGame(gameRoom);
       }
 
+      await queryRunner.commitTransaction();
+
       return {
         id: gameRoom.id,
       };
     } catch (error) {
-      handleExceptions(error, `GameRoomService.joinGame`);
+      await queryRunner.rollbackTransaction();
+
+      handleExceptions(error);
+    } finally {
+      await queryRunner.release();
     }
   }
 

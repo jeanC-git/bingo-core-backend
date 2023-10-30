@@ -28,6 +28,7 @@ export class BingoCard {
 
         const bingoCard = [];
         const template = [];
+        const maxNumber = 50;
 
         for (let i = 0; i < 5; i++) {
 
@@ -35,7 +36,7 @@ export class BingoCard {
 
             do {
 
-                const element = Math.floor(Math.random() * (99 - 0)) + 0;
+                const element = Math.floor(Math.random() * (maxNumber - 0)) + 0;
 
                 if (bingoCard.length === 2 && partial.length === 2) {
                     partial.push(null);
