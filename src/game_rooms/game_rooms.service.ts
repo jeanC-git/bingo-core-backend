@@ -173,50 +173,50 @@ export class GameRoomsService {
     gameRooms.forEach(async (gameRoom: GameRoom) => {
       await this.saveHistoryLog(gameRoom, 'Obteniendo próximo número ...');
 
-      setTimeout(async () => {
-        const currentlyPickedBalls = await this.getCurrentlyPickedBalls(
-          gameRoom,
+      // setTimeout(async () => {
+      const currentlyPickedBalls = await this.getCurrentlyPickedBalls(
+        gameRoom,
+      );
+      const availableBalls = GameRoom.getAvailableBalls(currentlyPickedBalls);
+
+      if (availableBalls.length > 0) {
+        const randomNumber =
+          availableBalls[Math.floor(Math.random() * availableBalls.length)];
+
+        const pickedBallData = this.pickedBallRepository.create({
+          gameRoomId: gameRoom.id,
+          label: `A${randomNumber}`,
+          letter: 'A',
+          number: randomNumber,
+        });
+        const pickedBallDB = await this.pickedBallRepository.save(
+          pickedBallData,
         );
-        const availableBalls = GameRoom.getAvailableBalls(currentlyPickedBalls);
 
-        if (availableBalls.length > 0) {
-          const randomNumber =
-            availableBalls[Math.floor(Math.random() * availableBalls.length)];
+        gameRoom.balls_played = gameRoom.balls_played + 1;
+        await this.gameRoomRepository.save(gameRoom);
+        await this.saveHistoryLog(
+          gameRoom,
+          `Número obtenido: ${pickedBallDB.number}`,
+        );
 
-          const pickedBallData = this.pickedBallRepository.create({
-            gameRoomId: gameRoom.id,
-            label: `A${randomNumber}`,
-            letter: 'A',
-            number: randomNumber,
-          });
-          const pickedBallDB = await this.pickedBallRepository.save(
-            pickedBallData,
-          );
-
-          gameRoom.balls_played = gameRoom.balls_played + 1;
-          await this.gameRoomRepository.save(gameRoom);
-          await this.saveHistoryLog(
-            gameRoom,
-            `Número obtenido: ${pickedBallDB.number}`,
-          );
-
-          if (gameRoom.lastGame()) {
-            this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM');
-            this.broadcastFinishedGameRoom(gameRoom);
-            await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
-          } else {
-            this.broadcastPickedBall(gameRoom, pickedBallDB);
-            this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL');
-            await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
-          }
-        } else {
-          await this.saveHistoryLog(
-            gameRoom,
-            'No hay más bolitas disponibles, revisar los logs del juego.',
-          );
+        if (gameRoom.lastGame()) {
           this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM');
+          this.broadcastFinishedGameRoom(gameRoom);
+          await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
+        } else {
+          this.broadcastPickedBall(gameRoom, pickedBallDB);
+          this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL');
+          await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
         }
-      }, 2000);
+      } else {
+        await this.saveHistoryLog(
+          gameRoom,
+          'No hay más bolitas disponibles, revisar los logs del juego.',
+        );
+        this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM');
+      }
+      // }, 2000);
     });
   }
 
