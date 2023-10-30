@@ -166,11 +166,12 @@ export class GameRoomsService {
   async handleGetNextBall() {
     const gameRooms = await this.gameRoomRepository.find({
       where: {
-        status: In(['GETTING_NEXT_BALL']),
+        status: In(['WAITING_NEXT_BALL']),
       },
     });
 
     gameRooms.forEach(async (gameRoom: GameRoom) => {
+      this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL');
       await this.saveHistoryLog(gameRoom, 'Obteniendo próximo número ...');
 
       // setTimeout(async () => {
