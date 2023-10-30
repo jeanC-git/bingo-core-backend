@@ -38,7 +38,7 @@ export class GameRoomsService {
     private readonly bingoCardRepository: Repository<BingoCard>,
 
     private readonly wssClientGateway: WssClientGateway,
-  ) {}
+  ) { }
 
   async findOne(id: string) {
     const gameRoom = await this.gameRoomRepository.findOneBy({ id });
@@ -258,6 +258,7 @@ export class GameRoomsService {
   }
 
   evaluateBingoCard(bingoCard: BingoCardFront) {
+
     const PRIZE_LINES = {
       0: 0,
       1: 2,
