@@ -1,4 +1,4 @@
-import { Controller, Get, Post, Body, Param, UseGuards, UseInterceptors, } from '@nestjs/common';
+import { Controller, Get, Post, Body, Param, UseGuards, UseInterceptors } from '@nestjs/common';
 import { AuthGuard } from '@nestjs/passport';
 
 import { GameRoomsService } from './game_rooms.service';
@@ -25,6 +25,7 @@ export class GameRoomsController {
     @GetUser() user: User
   ) {
     const gameRoom = await this.gameRoomsService.joinGame(user);
+
     return success(gameRoom);
   }
 
