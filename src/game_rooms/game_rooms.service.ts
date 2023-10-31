@@ -134,8 +134,8 @@ export class GameRoomsService {
   }
 
   startGame(gameRoom: GameRoom) {
-    this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL');
-    this.broadcastStartGame(gameRoom);
+    this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL');
+    // this.broadcastStartGame(gameRoom);
   }
 
   async updateStatusTo(gameRoom: GameRoom, newStatus: string) {
@@ -150,17 +150,17 @@ export class GameRoomsService {
       },
     });
 
-    if (gameRooms.length > 0) {
-      gameRooms.forEach(async (gameRoom: GameRoom) => {
-        this.startGame(gameRoom);
 
-        if (gameRoom.isStarting()) {
-          await this.saveHistoryLog(gameRoom, `Iniciando partida ...`);
-        } else {
-          await this.saveHistoryLog(gameRoom, `Iniciando próxima jugada ...`);
-        }
-      });
-    }
+    gameRooms.forEach(async (gameRoom: GameRoom) => {
+      this.startGame(gameRoom);
+
+      if (gameRoom.isStarting()) {
+        await this.saveHistoryLog(gameRoom, `Iniciando partida ...`);
+      } else {
+        await this.saveHistoryLog(gameRoom, `Iniciando próxima jugada ...`);
+      }
+    });
+
   }
 
   async handleGetNextBall() {
@@ -172,6 +172,7 @@ export class GameRoomsService {
 
     gameRooms.forEach(async (gameRoom: GameRoom) => {
       this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL');
+      this.broadcastGettingNextBall(gameRoom);
       await this.saveHistoryLog(gameRoom, 'Obteniendo próximo número ...');
 
       // setTimeout(async () => {
@@ -200,13 +201,13 @@ export class GameRoomsService {
           gameRoom,
           `Número obtenido: ${pickedBallDB.number}`,
         );
+        this.broadcastPickedBall(gameRoom, pickedBallDB);
 
         if (gameRoom.lastGame()) {
           this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM');
           this.broadcastFinishedGameRoom(gameRoom);
           await this.saveHistoryLog(gameRoom, `Partida finalizada ...`);
         } else {
-          this.broadcastPickedBall(gameRoom, pickedBallDB);
           this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL');
           await this.saveHistoryLog(gameRoom, `Esperando próximo número ...`);
         }
@@ -217,7 +218,13 @@ export class GameRoomsService {
         );
         this.updateStatusTo(gameRoom, 'FINISHED_GAME_ROOM');
       }
-      // }, 2000);
+      // }, 1000);
+    });
+  }
+
+  broadcastGettingNextBall(gameRoom: GameRoom) {
+    this.wssClientGateway.wss.emit(`GameRoomEventStatusUpdate:${gameRoom.id}`, {
+      event: 'GETTING_NEXT_BALL_EVENT',
     });
   }
 
