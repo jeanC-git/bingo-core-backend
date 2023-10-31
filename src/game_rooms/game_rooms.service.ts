@@ -146,7 +146,7 @@ export class GameRoomsService {
   async handleStartGameRooms() {
     const gameRooms = await this.gameRoomRepository.find({
       where: {
-        status: In(['WAITING_FOR_PLAYERS', 'WAITING_NEXT_BALL']),
+        status: In(['WAITING_FOR_PLAYERS']),
       },
     });
 
