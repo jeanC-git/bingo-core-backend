@@ -58,6 +58,7 @@ export class GameRoomsService {
     try {
       const gameRoomData = {
         status: 'WAITING_FOR_PLAYERS',
+        numbers_of_plays: 20
       };
       const gameRoom = this.gameRoomRepository.create(gameRoomData);
       await this.gameRoomRepository.save(gameRoom);
@@ -255,10 +256,25 @@ export class GameRoomsService {
 
     // const winnerBalls = await this.getCurrentlyPickedBalls(gameRoom);
     const score = bingoCards.reduce((acc, bingoCard: BingoCardFront) => {
+
       const score = this.evaluateBingoCard(bingoCard);
+
       // const winnerBalls = await this.getCurrentlyPickedBalls(gameRoom);
       return acc + score;
+
     }, 0);
+
+    bingoCards.forEach(async (bingoCard) => {
+      const newTemplate = bingoCard.template;
+      const bingoCardDB = await this.bingoCardRepository.findOne({ where: { id: bingoCard.id } });
+
+      const templateDB = JSON.parse(bingoCardDB.json_data);
+      templateDB.template = newTemplate;
+      bingoCardDB.json_data = JSON.stringify(templateDB);
+      // console.log({ templateDB, newTemplate, finalTemplate: bingoCardDB.json_data });
+
+      await this.bingoCardRepository.save(bingoCardDB);
+    });
 
     return {
       score,
