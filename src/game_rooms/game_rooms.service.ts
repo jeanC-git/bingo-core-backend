@@ -58,7 +58,7 @@ export class GameRoomsService {
     try {
       const gameRoomData = {
         status: 'WAITING_FOR_PLAYERS',
-        numbers_of_plays: 20
+        numbers_of_plays: 5
       };
       const gameRoom = this.gameRoomRepository.create(gameRoomData);
       await this.gameRoomRepository.save(gameRoom);
