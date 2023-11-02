@@ -1,4 +1,4 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { DataSource, In, Repository } from 'typeorm';
 
 import { EvaluateBingoCardsDto, GenerateBingoCardsDto } from './dto';
@@ -151,11 +151,15 @@ export class GameRoomsService {
       },
     });
 
+    const logger = new Logger('handleStartGameRooms');
+    logger.log(`Salas de juego a iniciar ${gameRooms}`);
+
 
     gameRooms.forEach(async (gameRoom: GameRoom) => {
       this.startGame(gameRoom);
 
       if (gameRoom.isStarting()) {
+        logger.log(`${gameRoom.id} Iniciando partida ...`);
         await this.saveHistoryLog(gameRoom, `Iniciando partida ...`);
       } else {
         await this.saveHistoryLog(gameRoom, `Iniciando próxima jugada ...`);
@@ -171,10 +175,15 @@ export class GameRoomsService {
       },
     });
 
+    const logger = new Logger('handleGetNextBall');
+    logger.log(`Salas de juego proxima jugada ${gameRooms}`);
+
     gameRooms.forEach(async (gameRoom: GameRoom) => {
       this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL');
       this.broadcastGettingNextBall(gameRoom);
       await this.saveHistoryLog(gameRoom, 'Obteniendo próximo número ...');
+      logger.log(`${gameRoom.id} Obteniendo próximo número ...`);
+
 
       // setTimeout(async () => {
       const currentlyPickedBalls = await this.getCurrentlyPickedBalls(
