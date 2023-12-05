@@ -58,7 +58,7 @@ export class GameRoomsService {
     try {
       const gameRoomData = {
         status: 'WAITING_FOR_PLAYERS',
-        numbers_of_plays: 6
+        numbers_of_plays: 5
       };
       const gameRoom = this.gameRoomRepository.create(gameRoomData);
       await this.gameRoomRepository.save(gameRoom);
@@ -134,11 +134,6 @@ export class GameRoomsService {
     await this.gameLogRepository.save(gameLog);
   }
 
-  startGame(gameRoom: GameRoom) {
-    this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL');
-    // this.broadcastStartGame(gameRoom);
-  }
-
   async updateStatusTo(gameRoom: GameRoom, newStatus: string) {
     gameRoom.status = newStatus;
     await this.gameRoomRepository.save(gameRoom);
@@ -152,7 +147,7 @@ export class GameRoomsService {
     });
 
     const logger = new Logger('handleStartGameRooms');
-    logger.log(`Salas de juego a iniciar ${gameRooms}`);
+    // logger.log(`Salas de juego a iniciar ${gameRooms}`);
 
 
     gameRooms.forEach(async (gameRoom: GameRoom) => {
@@ -176,7 +171,7 @@ export class GameRoomsService {
     });
 
     const logger = new Logger('handleGetNextBall');
-    logger.log(`Salas de juego proxima jugada ${gameRooms}`);
+    // logger.log(`Salas de juego proxima jugada ${gameRooms}`);
 
     gameRooms.forEach(async (gameRoom: GameRoom) => {
       this.updateStatusTo(gameRoom, 'GETTING_NEXT_BALL');
@@ -230,6 +225,11 @@ export class GameRoomsService {
       }
       // }, 1000);
     });
+  }
+
+  startGame(gameRoom: GameRoom) {
+    this.updateStatusTo(gameRoom, 'WAITING_NEXT_BALL');
+    // this.broadcastStartGame(gameRoom);
   }
 
   broadcastGettingNextBall(gameRoom: GameRoom) {
